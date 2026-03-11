@@ -4,378 +4,427 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Opportunity Solution Tree — Content Catalyst Demo Experience</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0f0f1a;
-    --surface: #16162a;
-    --surface-active: #1e1e35;
-    --border: #25253d;
-    --border-active: rgba(224, 192, 151, 0.31);
-    --gold: #e0c097;
-    --gold-dim: rgba(224, 192, 151, 0.38);
-    --text: #e8e4dc;
-    --text-mid: #b0acbe;
-    --text-dim: #8a8698;
-    --text-faint: #6a6680;
-    --text-ghost: #5f5b72;
-    --text-micro: #44415a;
-    --subscriber-bg: #1b3a4b;
-    --subscriber-text: #7dd3c0;
-    --admin-bg: #2d2b55;
-    --admin-text: #c4b5fd;
-    --shortfall-text: #c8c4d4;
-    --section-label: #7a7690;
+    --cc-navy: #031183;
+    --cc-blue: #367CF5;
+    --cc-green-bright: #69E38F;
+    --cc-green-dark: #245237;
+    --cc-coral: #EB5C4E;
+    --cc-purple: #300483;
+    --cc-grey-dark: #3C3C3C;
+    --cc-grey-light: #F6F6F6;
+
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-alt: var(--cc-grey-light);
+    --border: #e2e2e2;
+    --text: var(--cc-grey-dark);
+    --text-mid: #555555;
+    --text-dim: #888888;
+    --text-faint: #aaaaaa;
+    --text-micro: #cccccc;
+
+    --subscriber-bg: #e6f3ed;
+    --subscriber-text: var(--cc-green-dark);
+    --admin-bg: #ede6f6;
+    --admin-text: var(--cc-purple);
   }
 
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Source Sans 3', sans-serif;
     -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
   }
 
-  .grain {
-    position: fixed; inset: 0; opacity: 0.03; pointer-events: none; z-index: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
+  .page { max-width: 1400px; margin: 0 auto; padding: 36px 28px 80px; }
 
-  .container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+  /* Header */
+  .header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .header-logo { font-family: 'PT Serif', serif; font-size: 18px; font-weight: 700; color: var(--cc-navy); letter-spacing: -0.02em; line-height: 1.1; }
+  .header-divider { width: 1px; height: 28px; background: var(--border); }
+  .header-context { font-size: 12px; color: var(--text-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
 
-  .brand { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
-  .brand-name { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
-  .brand-sub { color: #555; font-size: 11px; }
+  h1 { font-family: 'PT Serif', serif; font-size: clamp(24px, 3vw, 34px); font-weight: 700; color: var(--cc-navy); margin-bottom: 4px; line-height: 1.2; }
+  .subtitle { color: var(--text-mid); font-size: 13px; margin-bottom: 32px; max-width: 680px; line-height: 1.6; }
 
-  h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 4vw, 42px);
-    font-weight: 700; color: var(--text);
-    margin-bottom: 6px; line-height: 1.15;
-  }
-  .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 32px; max-width: 560px; line-height: 1.6; }
-
-  /* View toggle */
-  .view-toggle { display: flex; gap: 4px; margin-bottom: 28px; }
-  .view-btn {
-    padding: 6px 16px; border-radius: 6px; border: 1px solid var(--border);
-    background: transparent; color: var(--text-faint); font-size: 12px;
-    font-weight: 600; cursor: pointer; text-transform: capitalize;
-    font-family: 'DM Sans', sans-serif; transition: all 0.2s;
-  }
-  .view-btn.active { border-color: var(--gold); background: rgba(224,192,151,0.08); color: var(--gold); }
-
-  /* Outcome node */
+  /* ========= TIER 0: OUTCOME ========= */
   .outcome {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border: 1.5px solid var(--border-active); border-radius: 14px;
-    padding: 24px 28px; margin-bottom: 48px; position: relative;
+    background: var(--cc-navy); border-radius: 10px; padding: 20px 28px;
+    text-align: center; max-width: 720px; margin: 0 auto;
   }
-  .outcome-label {
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--gold); font-weight: 600; margin-bottom: 8px;
-  }
-  .outcome-text {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(16px, 2.5vw, 20px);
-    font-weight: 600; line-height: 1.4; color: var(--text);
-  }
+  .outcome-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cc-green-bright); font-weight: 700; margin-bottom: 4px; }
+  .outcome-text { font-family: 'PT Serif', serif; font-size: clamp(14px, 1.8vw, 17px); font-weight: 400; line-height: 1.45; color: #fff; }
 
-  /* Connector lines */
-  .connectors-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  /* ========= CONNECTOR SVG LAYERS ========= */
+  .connector-zone { height: 36px; position: relative; }
+  .connector-zone svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 
-  /* Grid / List */
-  .opp-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px; position: relative; z-index: 1;
-  }
-  .opp-grid.list-view { display: flex; flex-direction: column; gap: 12px; }
+  .solution-connectors-wrap { position: relative; }
+  .solution-connectors-wrap > svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 
-  /* Opportunity card */
+  /* ========= TIER LABELS ========= */
+  .tier-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-faint); margin-bottom: 8px; padding-left: 2px; }
+
+  /* ========= TIER 1: OPPORTUNITY CARDS ========= */
+  .opp-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+
+  .opp-col { display: flex; flex-direction: column; }
+
   .opp-card {
-    background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 12px; overflow: hidden; transition: all 0.25s ease; cursor: pointer;
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px;
+    overflow: hidden; transition: all 0.2s ease; cursor: pointer;
   }
-  .opp-card.open { background: linear-gradient(145deg, #1e1e35, #191930); border-color: var(--border-active); }
-  .opp-card:hover { border-color: #35354f; }
+  .opp-card.open { border-color: var(--cc-navy); box-shadow: 0 2px 12px rgba(3,17,131,0.07); }
+  .opp-card:hover { border-color: #c0c0c0; }
+  .opp-card.open:hover { border-color: var(--cc-navy); }
 
-  .card-header { padding: 16px 18px 14px; }
-  .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .card-top-left { display: flex; align-items: center; gap: 8px; }
-  .card-label { font-size: 10px; color: var(--text-faint); font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
-  .card-title { font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--text); }
+  .card-header { padding: 12px 12px 10px; }
+  .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .card-title { font-family: 'PT Serif', serif; font-size: 13px; font-weight: 700; line-height: 1.3; color: var(--cc-navy); margin-bottom: 8px; }
 
-  /* Vote badge */
-  .vote { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--gold); color: #1a1a2e; font-weight: 700; flex-shrink: 0; font-family: 'DM Sans', sans-serif; }
-  .vote-md { width: 26px; height: 26px; font-size: 12px; }
-  .vote-sm { width: 20px; height: 20px; font-size: 10px; }
+  .impact-row { display: flex; align-items: center; gap: 6px; }
+  .impact-label { font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); font-weight: 700; white-space: nowrap; }
+  .impact-track { flex: 1; height: 3px; background: #eaeaea; border-radius: 2px; overflow: hidden; }
+  .impact-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--cc-blue), var(--cc-navy)); }
 
-  /* Facing tag */
-  .facing { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .facing { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
   .facing-sub { background: var(--subscriber-bg); color: var(--subscriber-text); }
   .facing-admin { background: var(--admin-bg); color: var(--admin-text); }
 
-  /* Expandable content */
-  .card-expand {
-    max-height: 0; opacity: 0; overflow: hidden;
-    transition: max-height 0.35s ease, opacity 0.25s ease;
+  /* Expandable problem/shortfalls */
+  .card-expand { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s ease; }
+  .opp-card.open .card-expand { max-height: 1200px; opacity: 1; }
+  .card-expand-inner { padding: 0 12px 10px; }
+
+  .problem-block { background: var(--surface-alt); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; border-left: 3px solid var(--cc-blue); }
+  .section-label { font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+  .section-label-navy { color: var(--cc-navy); }
+  .section-label-dim { color: var(--text-faint); margin-bottom: 5px; }
+  .problem-text { font-size: 11px; line-height: 1.55; color: var(--text-mid); }
+
+  .sf-row { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; font-size: 10.5px; }
+  .sf-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--cc-blue); margin-top: 5px; flex-shrink: 0; }
+  .sf-text { color: var(--text-mid); }
+  .sf-theme { margin-left: 3px; font-size: 9px; color: var(--text-faint); font-style: italic; }
+
+  .toggle-btn {
+    display: flex; align-items: center; justify-content: center;
+    padding: 5px 12px; cursor: pointer; border-top: 1px solid transparent; transition: border-color 0.2s;
   }
-  .opp-card.open .card-expand { max-height: 800px; opacity: 1; }
-  .card-expand-inner { padding: 0 18px 18px; }
+  .opp-card.open + .toggle-btn, .opp-card.open .toggle-btn-inner { border-top-color: var(--border); }
+  .toggle-text { font-size: 9px; color: var(--text-faint); display: flex; align-items: center; gap: 3px; font-weight: 600; }
 
-  /* Problem block */
-  .problem-block {
-    background: var(--bg); border-radius: 8px; padding: 14px 16px;
-    margin-bottom: 14px; border-left: 3px solid var(--gold-dim);
+  /* ========= TIER 2: SOLUTION BOXES ========= */
+  .solutions-zone {
+    overflow: hidden;
+    max-height: 0; opacity: 0;
+    transition: max-height 0.45s ease, opacity 0.35s ease;
+  }
+  .solutions-zone.open { max-height: 800px; opacity: 1; }
+
+  .solutions-connector-zone { height: 24px; position: relative; }
+  .solutions-connector-zone svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  .solutions-label {
+    font-size: 8px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--cc-green-dark); margin-bottom: 6px; padding-left: 2px;
   }
 
-  /* Section labels */
-  .section-label {
-    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
-    font-weight: 600; margin-bottom: 6px;
+  .solutions-grid {
+    display: flex; flex-direction: column; gap: 6px;
   }
-  .section-label-gold { color: var(--gold); }
-  .section-label-dim { color: var(--section-label); margin-bottom: 8px; }
 
-  .problem-text { font-size: 12.5px; line-height: 1.6; color: var(--text-mid); }
-
-  /* Shortfall row */
-  .sf-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 12px; color: #9590a6; }
-  .sf-text { color: var(--shortfall-text); }
-  .sf-theme { margin-left: 6px; font-size: 10px; color: var(--text-ghost); font-style: italic; }
-
-  /* Solution row */
-  .sol-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 12px; color: #9590a6; }
-  .sol-diamond { color: var(--gold); font-size: 10px; margin-top: 2px; }
-
-  /* Expand indicator */
-  .expand-bar {
-    padding: 8px 18px; display: flex; justify-content: center;
-    border-top: 1px solid transparent; transition: border-color 0.2s;
+  .sol-card {
+    background: var(--surface-alt);
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 10.5px;
+    line-height: 1.45;
+    color: var(--text-mid);
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    transition: border-color 0.2s;
   }
-  .opp-card.open .expand-bar { border-top-color: var(--border); }
-  .expand-text { font-size: 10px; color: var(--text-ghost); display: flex; align-items: center; gap: 4px; }
+  .sol-card:hover { border-color: var(--cc-green-bright); }
+  .sol-marker {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cc-green-bright); margin-top: 4px; flex-shrink: 0;
+  }
 
-  /* Legend */
+  /* Solutions expand toggle */
+  .sol-toggle-btn {
+    display: flex; align-items: center; justify-content: center;
+    padding: 4px 0; cursor: pointer; margin-top: 4px;
+  }
+  .sol-toggle-text {
+    font-size: 8px; color: var(--cc-blue); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 3px;
+  }
+
+  /* ========= LEGEND ========= */
   .legend {
-    margin-top: 40px; padding: 16px 20px; border-radius: 10px;
-    border: 1px solid #1e1e35; display: flex; flex-wrap: wrap;
-    gap: 20px; font-size: 11px; color: var(--text-faint);
+    margin-top: 32px; padding: 12px 16px; border-radius: 6px;
+    border: 1px solid var(--border); display: flex; flex-wrap: wrap;
+    gap: 18px; font-size: 10px; color: var(--text-dim); background: var(--surface);
   }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-bar { width: 28px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--cc-blue), var(--cc-navy)); }
+  .legend-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cc-green-bright); }
 
-  .source { margin-top: 20px; font-size: 10px; color: var(--text-micro); text-align: center; }
+  .source { margin-top: 14px; font-size: 9px; color: var(--text-micro); text-align: center; }
 
-  .mb-14 { margin-bottom: 14px; }
+  @media (max-width: 960px) {
+    .opp-row { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  }
 </style>
 </head>
 <body>
-<div class="grain"></div>
-<div class="container" id="container">
+<div class="page" id="page">
 
-  <div class="brand">
-    <span class="brand-name">Content Catalyst</span>
-    <span class="brand-sub">Demo Experience</span>
+  <div class="header">
+    <div class="header-logo">content<br>catalyst</div>
+    <div class="header-divider"></div>
+    <div class="header-context">Demo Experience</div>
   </div>
 
   <h1>Opportunity Solution Tree</h1>
-  <p class="subtitle">Mapping demo shortfalls to opportunities, rooted in the commercial team's dot-voted pain points. Expand each opportunity to see the underlying shortfalls and candidate solutions.</p>
+  <p class="subtitle">Mapping demo shortfalls to opportunities, rooted in the commercial team's prioritised pain points. Expand each opportunity to see the problem and shortfalls, then reveal candidate solutions branching below.</p>
 
-  <div class="view-toggle">
-    <button class="view-btn active" data-view="tree" onclick="setView('tree')">Tree view</button>
-    <button class="view-btn" data-view="list" onclick="setView('list')">List view</button>
-  </div>
-
-  <!-- Outcome -->
+  <!-- TIER 0: Outcome -->
   <div class="outcome" id="outcome-node">
     <div class="outcome-label">Desired Outcome</div>
-    <div class="outcome-text">A demo experience that wins prospects by showing — not telling — the value of Content Catalyst over self-build</div>
+    <div class="outcome-text">Develop a demonstration site that wows prospects with a clear narrative of business benefits wrapped in a modern user interface</div>
   </div>
 
-  <!-- SVG connectors -->
-  <svg class="connectors-svg" id="connectors"></svg>
+  <!-- Connectors: Outcome → Opportunities -->
+  <div class="connector-zone" id="conn-zone-1">
+    <svg id="svg-tier1"></svg>
+  </div>
 
-  <!-- Opportunity cards -->
-  <div class="opp-grid" id="opp-grid"></div>
+  <!-- TIER 1: Opportunities -->
+  <div class="tier-label">Opportunities</div>
+  <div class="opp-row" id="opp-row"></div>
 
-  <!-- Legend -->
+  <!-- TIER 2: Solutions (rendered per-column beneath each opp) -->
+  <!-- Solutions connectors + cards are injected inside each .opp-col -->
+
   <div class="legend">
-    <div class="legend-item"><span class="vote vote-sm">n</span> Dot votes from commercial team</div>
+    <div class="legend-item"><span class="legend-bar"></span> Relative impact (commercial team assessment)</div>
     <div class="legend-item"><span class="facing facing-sub">Subscriber</span><span class="facing facing-admin">Admin</span> Who it impacts</div>
-    <div class="legend-item"><span class="sol-diamond">◆</span> Candidate solutions for ideation workshop</div>
+    <div class="legend-item"><span class="legend-dot"></span> Solutions (TBC — pending ideation workshop)</div>
   </div>
-
-  <div class="source">Source: Commercial team demo pain points &amp; shortfalls (Miro) · 20 total votes across 5 opportunity areas</div>
+  <div class="source">Source: Commercial team demo pain points &amp; shortfalls assessment &middot; 5 opportunity areas</div>
 </div>
 
 <script>
 const DATA = [
   {
-    id:"opp1", label:"Opportunity 1", votes:6, facing:"Subscriber",
+    id:"opp1", facing:"Subscriber", impact:6,
     title:"Subscriber experience looks inconsistent & dated",
-    problem:"Prospects encounter jarring visual transitions between new and old UI during the subscriber journey. The search page doesn\u2019t match the Active theme, and design language varies across the platform \u2014 undermining premium positioning and the SaaS-over-build-your-own argument.",
+    problem:"When we demo the subscriber journey, prospects encounter jarring visual transitions between new and old UI. The search page doesn\u2019t match the Active theme, and other areas of the platform visibly differ in design language. This undermines our premium positioning and weakens the SaaS-over-build-your-own argument \u2014 the experience looks stitched together rather than purposefully designed.",
     shortfalls:[
-      {text:"Search page not in Active theme / jarring",theme:"Content Discoverability",votes:3},
-      {text:"Old/new design differences",theme:"SaaS Over Build Your Own",votes:3}
+      {text:"Search page not in Active theme / jarring",theme:"Content Discoverability"},
+      {text:"Old/new design differences",theme:"SaaS Over Build Your Own"}
     ],
     solutions:[
-      "Unified Active theme rollout across all subscriber-facing pages",
-      "Design system audit to identify and eliminate legacy UI fragments",
-      "Storylane demo scene: before/after of consistent branded experience"
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop"
     ]
   },
   {
-    id:"opp2", label:"Opportunity 2", votes:5, facing:"Subscriber",
+    id:"opp2", facing:"Subscriber", impact:5,
     title:"Data isn\u2019t integrated into the subscriber journey",
-    problem:"Power BI dashboards and data products sit in isolation \u2014 they don\u2019t appear in search results, aren\u2019t surfaced through MyCatalyst, and aren\u2019t part of the content discovery flow. Prospects expect filter-and-select data browsing, not just search. There\u2019s no first-class \u2018data path\u2019 alongside the content path.",
+    problem:"Power BI dashboards and data products sit in isolation \u2014 they don\u2019t appear in search results, aren\u2019t surfaced through MyCatalyst, and aren\u2019t part of the content discovery flow. Even where data visualisations are present, the experience feels disconnected \u2014 iframe presentation, loading delays, and bolted-on landing pages mean data doesn\u2019t feel like a native part of the platform. Meanwhile, prospects are showing us how their subscribers expect to browse data through filter-and-select interfaces (choose dimensions, apply filters, see relevant results), not just search. We lack a first-class \u2018data path\u2019 alongside our content path.",
     shortfalls:[
-      {text:"Power BI not integrated into search and MyCatalyst",theme:"Data Delivery & Discovery",votes:4},
-      {text:"Data \u2018menu / selector\u2019 UI inadequate",theme:"Download Delivery Undermines Premium Positioning",votes:1}
+      {text:"Power BI not integrated into search and MyCatalyst",theme:"Data Delivery & Discovery"},
+      {text:"How we serve data \u2018menu / selector\u2019 UI",theme:"Download Delivery Undermines Premium Positioning"}
     ],
     solutions:[
-      "Surface data products in unified search results",
-      "Filter-and-select browsing UI for data dimensions",
-      "MyCatalyst integration: data alongside content in personal area"
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop"
     ]
   },
   {
-    id:"opp3", label:"Opportunity 3", votes:4, facing:"Subscriber",
+    id:"opp3", facing:"Subscriber", impact:4,
     title:"AI & personal experience feel bolted on, not embedded",
-    problem:"MyCatalyst AI only exists as a standalone chat \u2014 it doesn\u2019t enhance search, summarise reports, or surface anywhere else in the journey. The personal area is underpowered and slow. The two features that should make the platform feel smart and tailored both come across as afterthoughts.",
+    problem:"MyCatalyst AI only exists as a standalone chat experience \u2014 it doesn\u2019t enhance search results, summarise reports, or surface anywhere else in the subscriber journey. The personal area where subscribers manage saved content, alerts, and preferences feels similarly disconnected: underpowered, slow, and not delivering the kind of intelligent, personalised experience prospects expect. Together, these mean the two features that should make the platform feel smart and tailored to each subscriber \u2014 AI and personalisation \u2014 both come across as afterthoughts rather than core to the experience.",
     shortfalls:[
-      {text:"AI chat feels separate",theme:"Content Discoverability",votes:2},
-      {text:"AI chat is slow",theme:"Content Discoverability",votes:1},
-      {text:"MyCatalyst could have more features / be quicker",theme:"Content Discoverability",votes:1}
+      {text:"AI chat feels separate",theme:"Content Discoverability"},
+      {text:"AI chat is slow",theme:"Content Discoverability"},
+      {text:"MyCatalyst could have more features / be quicker",theme:"Content Discoverability"}
     ],
     solutions:[
-      "AI-assisted search results with inline summaries",
-      "Contextual AI prompts throughout the subscriber journey",
-      "Personal area redesign: faster, smarter, more connected"
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop"
     ]
   },
   {
-    id:"opp4", label:"Opportunity 4", votes:3, facing:"Admin",
+    id:"opp4", facing:"Admin", impact:3,
     title:"Publishing workflow doesn\u2019t impress",
-    problem:"The admin publishing process \u2014 upload, workflow, approvals, statuses \u2014 looks dated and lacks AI enhancement. For prospects evaluating SaaS vs self-build, the backend matters. A functional-but-uninspiring admin UI weakens the efficiency and modernity argument.",
+    problem:"When we demo the admin publishing process \u2014 upload, workflow, approvals, statuses \u2014 it looks dated and lacks any AI enhancement. More broadly, legacy admin screens that haven\u2019t been updated to the current design language are visible throughout the backend experience. For prospects evaluating SaaS vs building their own, the admin experience matters. A functional-but-uninspiring admin UI makes it harder to convey the efficiency and modernity gains of choosing Content Catalyst.",
     shortfalls:[
-      {text:"Old look & no AI / no wow to it",theme:"Internal Publishing Workflow",votes:3}
+      {text:"Old look & no AI / no wow to it",theme:"Internal Publishing Workflow"}
     ],
     solutions:[
-      "Admin UI visual refresh with modern design language",
-      "AI-assisted metadata, tagging, and workflow suggestions",
-      "Storylane demo scene: streamlined publish flow with AI touches"
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop"
     ]
   },
   {
-    id:"opp5", label:"Opportunity 5", votes:2, facing:"Subscriber",
+    id:"opp5", facing:"Subscriber", impact:2,
     title:"Subscription value isn\u2019t visible to subscribers",
-    problem:"It\u2019s not clear how a subscriber would understand what their tier includes or what additional content is available. Without visible tiering and upgrade paths, the upsell and renewal story (padlocked content, Showcase, category cards) doesn\u2019t land.",
+    problem:"During demos, it\u2019s not clear to prospects how a subscriber would understand what their tier includes or what additional content is available to them. Without visible tiering and upgrade paths, the upsell and renewal story we want to tell (padlocked content, Showcase, category cards) doesn\u2019t land.",
     shortfalls:[
-      {text:"Subscription / access not clearly indicated",theme:"Grow Revenue",votes:2}
+      {text:"Subscription / access not clearly indicated",theme:"Grow Revenue"}
     ],
     solutions:[
-      "Visible access indicators and tier badges on content",
-      "Upgrade prompts and Showcase integration in content flow",
-      "Demo scene: subscriber sees what they have vs what\u2019s available"
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop",
+      "TBC \u2014 ideation workshop"
     ]
   }
 ];
 
-let currentView = 'tree';
-let expandedId = null;
+const maxImpact = Math.max(...DATA.map(d => d.impact));
+let openOpps = {};
 
-function setView(v) {
-  currentView = v;
-  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
-  const grid = document.getElementById('opp-grid');
-  grid.classList.toggle('list-view', v === 'list');
-  drawConnectors();
-}
+function toggleOpp(id) {
+  openOpps[id] = !openOpps[id];
+  const col = document.querySelector(`.opp-col[data-id="${id}"]`);
+  const card = col.querySelector('.opp-card');
+  const solZone = col.querySelector('.solutions-zone');
+  const arrow = col.querySelector('.opp-arrow');
+  const label = col.querySelector('.opp-toggle-label');
 
-function toggle(id) {
-  expandedId = expandedId === id ? null : id;
-  document.querySelectorAll('.opp-card').forEach(c => {
-    c.classList.toggle('open', c.dataset.id === expandedId);
-  });
-  setTimeout(drawConnectors, 360);
+  const isOpen = openOpps[id];
+  card.classList.toggle('open', isOpen);
+  solZone.classList.toggle('open', isOpen);
+  if (arrow) arrow.textContent = isOpen ? '\u25B2' : '\u25BC';
+  if (label) label.textContent = isOpen ? ' Collapse' : ' Expand';
+
+  // Redraw solution connectors after animation
+  setTimeout(() => drawSolutionConnectors(id), 460);
 }
 
 function renderCards() {
-  const grid = document.getElementById('opp-grid');
-  grid.innerHTML = DATA.map(opp => {
+  const row = document.getElementById('opp-row');
+  row.innerHTML = DATA.map(opp => {
     const facingCls = opp.facing === 'Admin' ? 'facing-admin' : 'facing-sub';
+    const pct = Math.round((opp.impact / maxImpact) * 100);
+
     const sfHtml = opp.shortfalls.map(sf =>
-      `<div class="sf-row"><span class="vote vote-sm">${sf.votes}</span><div><span class="sf-text">${sf.text}</span><span class="sf-theme">${sf.theme}</span></div></div>`
-    ).join('');
-    const solHtml = opp.solutions.map(s =>
-      `<div class="sol-row"><span class="sol-diamond">\u25C6</span><span>${s}</span></div>`
+      `<div class="sf-row"><span class="sf-dot"></span><div><span class="sf-text">${sf.text}</span><span class="sf-theme">${sf.theme}</span></div></div>`
     ).join('');
 
-    return `<div class="opp-card" data-id="${opp.id}" onclick="toggle('${opp.id}')">
-      <div class="card-header">
-        <div class="card-top">
-          <div class="card-top-left"><span class="vote vote-md">${opp.votes}</span><span class="facing ${facingCls}">${opp.facing}</span></div>
-          <span class="card-label">${opp.label}</span>
-        </div>
-        <div class="card-title">${opp.title}</div>
-      </div>
-      <div class="card-expand">
-        <div class="card-expand-inner">
-          <div class="problem-block">
-            <div class="section-label section-label-gold">Problem Statement</div>
-            <div class="problem-text">${opp.problem}</div>
-          </div>
-          <div class="mb-14">
-            <div class="section-label section-label-dim">Shortfalls</div>
-            ${sfHtml}
-          </div>
-          <div>
-            <div class="section-label section-label-dim">Candidate Solutions</div>
-            ${solHtml}
+    const solCardsHtml = opp.solutions.map((s, i) =>
+      `<div class="sol-card" data-sol="${opp.id}-sol${i}"><span class="sol-marker"></span><span>${s}</span></div>`
+    ).join('');
+
+    return `<div class="opp-col" data-id="${opp.id}">
+      <!-- Opportunity card -->
+      <div class="opp-card" data-id="${opp.id}" onclick="toggleOpp('${opp.id}')">
+        <div class="card-header">
+          <div class="card-top"><span class="facing ${facingCls}">${opp.facing}</span></div>
+          <div class="card-title">${opp.title}</div>
+          <div class="impact-row">
+            <span class="impact-label">Impact</span>
+            <div class="impact-track"><div class="impact-fill" style="width:${pct}%"></div></div>
           </div>
         </div>
+        <div class="card-expand">
+          <div class="card-expand-inner">
+            <div class="problem-block">
+              <div class="section-label section-label-navy">Problem Statement</div>
+              <div class="problem-text">${opp.problem}</div>
+            </div>
+            <div style="margin-bottom:4px">
+              <div class="section-label section-label-dim">Shortfalls</div>
+              ${sfHtml}
+            </div>
+          </div>
+        </div>
+        <div class="toggle-btn">
+          <span class="toggle-text"><span class="opp-arrow">&#9660;</span><span class="opp-toggle-label"> Expand</span></span>
+        </div>
       </div>
-      <div class="expand-bar"><span class="expand-text"><span class="arrow">\u25BC</span> Expand</span></div>
+
+      <!-- Solution cards zone (branches below) -->
+      <div class="solutions-zone" data-parent="${opp.id}">
+        <div class="solutions-connector-zone" data-connzone="${opp.id}">
+          <svg data-connsvg="${opp.id}"></svg>
+        </div>
+        <div class="solutions-label">Solutions — To Be Confirmed</div>
+        <div class="solutions-grid" data-solgrid="${opp.id}">
+          ${solCardsHtml}
+        </div>
+      </div>
     </div>`;
   }).join('');
-
-  // Update expand indicators
-  document.querySelectorAll('.opp-card').forEach(c => {
-    const arrow = c.querySelector('.arrow');
-    const txt = c.querySelector('.expand-text');
-    if (c.classList.contains('open')) {
-      arrow.textContent = '\u25B2';
-      txt.lastChild.textContent = ' Collapse';
-    }
-  });
 }
 
-function drawConnectors() {
-  const svg = document.getElementById('connectors');
-  const container = document.getElementById('container');
+function drawTier1Connectors() {
+  const svg = document.getElementById('svg-tier1');
+  const zone = document.getElementById('conn-zone-1');
   const outcome = document.getElementById('outcome-node');
-  if (!container || !outcome) return;
+  if (!outcome || !zone) return;
 
-  const cRect = container.getBoundingClientRect();
+  const zRect = zone.getBoundingClientRect();
   const oRect = outcome.getBoundingClientRect();
-  const x1 = oRect.left + oRect.width / 2 - cRect.left;
-  const y1 = oRect.bottom - cRect.top;
+  const x1 = oRect.left + oRect.width / 2 - zRect.left;
 
   let paths = '';
   document.querySelectorAll('.opp-card').forEach(card => {
     const r = card.getBoundingClientRect();
-    const x2 = r.left + r.width / 2 - cRect.left;
-    const y2 = r.top - cRect.top;
-    const midY = (y1 + y2) / 2;
-    paths += `<path d="M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}" fill="none" stroke="rgba(224,192,151,0.19)" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+    const x2 = r.left + r.width / 2 - zRect.left;
+    paths += `<path d="M ${x1} 0 C ${x1} ${zRect.height*0.65}, ${x2} ${zRect.height*0.35}, ${x2} ${zRect.height}" fill="none" stroke="#031183" stroke-width="1" stroke-opacity="0.18"/>`;
   });
   svg.innerHTML = paths;
 }
 
+function drawSolutionConnectors(oppId) {
+  const svg = document.querySelector(`svg[data-connsvg="${oppId}"]`);
+  const zone = document.querySelector(`[data-connzone="${oppId}"]`);
+  const card = document.querySelector(`.opp-card[data-id="${oppId}"]`);
+  const grid = document.querySelector(`[data-solgrid="${oppId}"]`);
+  if (!svg || !zone || !card || !grid) return;
+
+  const zRect = zone.getBoundingClientRect();
+  const cRect = card.getBoundingClientRect();
+  const x1 = cRect.left + cRect.width / 2 - zRect.left;
+
+  let paths = '';
+  grid.querySelectorAll('.sol-card').forEach(sol => {
+    const sRect = sol.getBoundingClientRect();
+    const x2 = sRect.left + sRect.width / 2 - zRect.left;
+    const h = zRect.height;
+    paths += `<path d="M ${x1} 0 C ${x1} ${h*0.6}, ${x2} ${h*0.4}, ${x2} ${h}" fill="none" stroke="${'#69E38F'}" stroke-width="1" stroke-opacity="0.5"/>`;
+  });
+  svg.innerHTML = paths;
+}
+
+function drawAllConnectors() {
+  drawTier1Connectors();
+  DATA.forEach(opp => {
+    if (openOpps[opp.id]) drawSolutionConnectors(opp.id);
+  });
+}
+
 renderCards();
-drawConnectors();
-window.addEventListener('resize', drawConnectors);
+requestAnimationFrame(drawAllConnectors);
+window.addEventListener('resize', drawAllConnectors);
 </script>
 </body>
 </html>
