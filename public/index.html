@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opportunity Solution Tree — Content Catalyst Demo Experience</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f1a;
+    --surface: #16162a;
+    --surface-active: #1e1e35;
+    --border: #25253d;
+    --border-active: rgba(224, 192, 151, 0.31);
+    --gold: #e0c097;
+    --gold-dim: rgba(224, 192, 151, 0.38);
+    --text: #e8e4dc;
+    --text-mid: #b0acbe;
+    --text-dim: #8a8698;
+    --text-faint: #6a6680;
+    --text-ghost: #5f5b72;
+    --text-micro: #44415a;
+    --subscriber-bg: #1b3a4b;
+    --subscriber-text: #7dd3c0;
+    --admin-bg: #2d2b55;
+    --admin-text: #c4b5fd;
+    --shortfall-text: #c8c4d4;
+    --section-label: #7a7690;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .grain {
+    position: fixed; inset: 0; opacity: 0.03; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+
+  .brand { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .brand-name { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  .brand-sub { color: #555; font-size: 11px; }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 700; color: var(--text);
+    margin-bottom: 6px; line-height: 1.15;
+  }
+  .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 32px; max-width: 560px; line-height: 1.6; }
+
+  /* View toggle */
+  .view-toggle { display: flex; gap: 4px; margin-bottom: 28px; }
+  .view-btn {
+    padding: 6px 16px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-faint); font-size: 12px;
+    font-weight: 600; cursor: pointer; text-transform: capitalize;
+    font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  }
+  .view-btn.active { border-color: var(--gold); background: rgba(224,192,151,0.08); color: var(--gold); }
+
+  /* Outcome node */
+  .outcome {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 1.5px solid var(--border-active); border-radius: 14px;
+    padding: 24px 28px; margin-bottom: 48px; position: relative;
+  }
+  .outcome-label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 8px;
+  }
+  .outcome-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 600; line-height: 1.4; color: var(--text);
+  }
+
+  /* Connector lines */
+  .connectors-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+  /* Grid / List */
+  .opp-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px; position: relative; z-index: 1;
+  }
+  .opp-grid.list-view { display: flex; flex-direction: column; gap: 12px; }
+
+  /* Opportunity card */
+  .opp-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; overflow: hidden; transition: all 0.25s ease; cursor: pointer;
+  }
+  .opp-card.open { background: linear-gradient(145deg, #1e1e35, #191930); border-color: var(--border-active); }
+  .opp-card:hover { border-color: #35354f; }
+
+  .card-header { padding: 16px 18px 14px; }
+  .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .card-top-left { display: flex; align-items: center; gap: 8px; }
+  .card-label { font-size: 10px; color: var(--text-faint); font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
+  .card-title { font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--text); }
+
+  /* Vote badge */
+  .vote { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--gold); color: #1a1a2e; font-weight: 700; flex-shrink: 0; font-family: 'DM Sans', sans-serif; }
+  .vote-md { width: 26px; height: 26px; font-size: 12px; }
+  .vote-sm { width: 20px; height: 20px; font-size: 10px; }
+
+  /* Facing tag */
+  .facing { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .facing-sub { background: var(--subscriber-bg); color: var(--subscriber-text); }
+  .facing-admin { background: var(--admin-bg); color: var(--admin-text); }
+
+  /* Expandable content */
+  .card-expand {
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.25s ease;
+  }
+  .opp-card.open .card-expand { max-height: 800px; opacity: 1; }
+  .card-expand-inner { padding: 0 18px 18px; }
+
+  /* Problem block */
+  .problem-block {
+    background: var(--bg); border-radius: 8px; padding: 14px 16px;
+    margin-bottom: 14px; border-left: 3px solid var(--gold-dim);
+  }
+
+  /* Section labels */
+  .section-label {
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 600; margin-bottom: 6px;
+  }
+  .section-label-gold { color: var(--gold); }
+  .section-label-dim { color: var(--section-label); margin-bottom: 8px; }
+
+  .problem-text { font-size: 12.5px; line-height: 1.6; color: var(--text-mid); }
+
+  /* Shortfall row */
+  .sf-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 12px; color: #9590a6; }
+  .sf-text { color: var(--shortfall-text); }
+  .sf-theme { margin-left: 6px; font-size: 10px; color: var(--text-ghost); font-style: italic; }
+
+  /* Solution row */
+  .sol-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 12px; color: #9590a6; }
+  .sol-diamond { color: var(--gold); font-size: 10px; margin-top: 2px; }
+
+  /* Expand indicator */
+  .expand-bar {
+    padding: 8px 18px; display: flex; justify-content: center;
+    border-top: 1px solid transparent; transition: border-color 0.2s;
+  }
+  .opp-card.open .expand-bar { border-top-color: var(--border); }
+  .expand-text { font-size: 10px; color: var(--text-ghost); display: flex; align-items: center; gap: 4px; }
+
+  /* Legend */
+  .legend {
+    margin-top: 40px; padding: 16px 20px; border-radius: 10px;
+    border: 1px solid #1e1e35; display: flex; flex-wrap: wrap;
+    gap: 20px; font-size: 11px; color: var(--text-faint);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  .source { margin-top: 20px; font-size: 10px; color: var(--text-micro); text-align: center; }
+
+  .mb-14 { margin-bottom: 14px; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="container" id="container">
+
+  <div class="brand">
+    <span class="brand-name">Content Catalyst</span>
+    <span class="brand-sub">Demo Experience</span>
+  </div>
+
+  <h1>Opportunity Solution Tree</h1>
+  <p class="subtitle">Mapping demo shortfalls to opportunities, rooted in the commercial team's dot-voted pain points. Expand each opportunity to see the underlying shortfalls and candidate solutions.</p>
+
+  <div class="view-toggle">
+    <button class="view-btn active" data-view="tree" onclick="setView('tree')">Tree view</button>
+    <button class="view-btn" data-view="list" onclick="setView('list')">List view</button>
+  </div>
+
+  <!-- Outcome -->
+  <div class="outcome" id="outcome-node">
+    <div class="outcome-label">Desired Outcome</div>
+    <div class="outcome-text">A demo experience that wins prospects by showing — not telling — the value of Content Catalyst over self-build</div>
+  </div>
+
+  <!-- SVG connectors -->
+  <svg class="connectors-svg" id="connectors"></svg>
+
+  <!-- Opportunity cards -->
+  <div class="opp-grid" id="opp-grid"></div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><span class="vote vote-sm">n</span> Dot votes from commercial team</div>
+    <div class="legend-item"><span class="facing facing-sub">Subscriber</span><span class="facing facing-admin">Admin</span> Who it impacts</div>
+    <div class="legend-item"><span class="sol-diamond">◆</span> Candidate solutions for ideation workshop</div>
+  </div>
+
+  <div class="source">Source: Commercial team demo pain points &amp; shortfalls (Miro) · 20 total votes across 5 opportunity areas</div>
+</div>
+
+<script>
+const DATA = [
+  {
+    id:"opp1", label:"Opportunity 1", votes:6, facing:"Subscriber",
+    title:"Subscriber experience looks inconsistent & dated",
+    problem:"Prospects encounter jarring visual transitions between new and old UI during the subscriber journey. The search page doesn\u2019t match the Active theme, and design language varies across the platform \u2014 undermining premium positioning and the SaaS-over-build-your-own argument.",
+    shortfalls:[
+      {text:"Search page not in Active theme / jarring",theme:"Content Discoverability",votes:3},
+      {text:"Old/new design differences",theme:"SaaS Over Build Your Own",votes:3}
+    ],
+    solutions:[
+      "Unified Active theme rollout across all subscriber-facing pages",
+      "Design system audit to identify and eliminate legacy UI fragments",
+      "Storylane demo scene: before/after of consistent branded experience"
+    ]
+  },
+  {
+    id:"opp2", label:"Opportunity 2", votes:5, facing:"Subscriber",
+    title:"Data isn\u2019t integrated into the subscriber journey",
+    problem:"Power BI dashboards and data products sit in isolation \u2014 they don\u2019t appear in search results, aren\u2019t surfaced through MyCatalyst, and aren\u2019t part of the content discovery flow. Prospects expect filter-and-select data browsing, not just search. There\u2019s no first-class \u2018data path\u2019 alongside the content path.",
+    shortfalls:[
+      {text:"Power BI not integrated into search and MyCatalyst",theme:"Data Delivery & Discovery",votes:4},
+      {text:"Data \u2018menu / selector\u2019 UI inadequate",theme:"Download Delivery Undermines Premium Positioning",votes:1}
+    ],
+    solutions:[
+      "Surface data products in unified search results",
+      "Filter-and-select browsing UI for data dimensions",
+      "MyCatalyst integration: data alongside content in personal area"
+    ]
+  },
+  {
+    id:"opp3", label:"Opportunity 3", votes:4, facing:"Subscriber",
+    title:"AI & personal experience feel bolted on, not embedded",
+    problem:"MyCatalyst AI only exists as a standalone chat \u2014 it doesn\u2019t enhance search, summarise reports, or surface anywhere else in the journey. The personal area is underpowered and slow. The two features that should make the platform feel smart and tailored both come across as afterthoughts.",
+    shortfalls:[
+      {text:"AI chat feels separate",theme:"Content Discoverability",votes:2},
+      {text:"AI chat is slow",theme:"Content Discoverability",votes:1},
+      {text:"MyCatalyst could have more features / be quicker",theme:"Content Discoverability",votes:1}
+    ],
+    solutions:[
+      "AI-assisted search results with inline summaries",
+      "Contextual AI prompts throughout the subscriber journey",
+      "Personal area redesign: faster, smarter, more connected"
+    ]
+  },
+  {
+    id:"opp4", label:"Opportunity 4", votes:3, facing:"Admin",
+    title:"Publishing workflow doesn\u2019t impress",
+    problem:"The admin publishing process \u2014 upload, workflow, approvals, statuses \u2014 looks dated and lacks AI enhancement. For prospects evaluating SaaS vs self-build, the backend matters. A functional-but-uninspiring admin UI weakens the efficiency and modernity argument.",
+    shortfalls:[
+      {text:"Old look & no AI / no wow to it",theme:"Internal Publishing Workflow",votes:3}
+    ],
+    solutions:[
+      "Admin UI visual refresh with modern design language",
+      "AI-assisted metadata, tagging, and workflow suggestions",
+      "Storylane demo scene: streamlined publish flow with AI touches"
+    ]
+  },
+  {
+    id:"opp5", label:"Opportunity 5", votes:2, facing:"Subscriber",
+    title:"Subscription value isn\u2019t visible to subscribers",
+    problem:"It\u2019s not clear how a subscriber would understand what their tier includes or what additional content is available. Without visible tiering and upgrade paths, the upsell and renewal story (padlocked content, Showcase, category cards) doesn\u2019t land.",
+    shortfalls:[
+      {text:"Subscription / access not clearly indicated",theme:"Grow Revenue",votes:2}
+    ],
+    solutions:[
+      "Visible access indicators and tier badges on content",
+      "Upgrade prompts and Showcase integration in content flow",
+      "Demo scene: subscriber sees what they have vs what\u2019s available"
+    ]
+  }
+];
+
+let currentView = 'tree';
+let expandedId = null;
+
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  const grid = document.getElementById('opp-grid');
+  grid.classList.toggle('list-view', v === 'list');
+  drawConnectors();
+}
+
+function toggle(id) {
+  expandedId = expandedId === id ? null : id;
+  document.querySelectorAll('.opp-card').forEach(c => {
+    c.classList.toggle('open', c.dataset.id === expandedId);
+  });
+  setTimeout(drawConnectors, 360);
+}
+
+function renderCards() {
+  const grid = document.getElementById('opp-grid');
+  grid.innerHTML = DATA.map(opp => {
+    const facingCls = opp.facing === 'Admin' ? 'facing-admin' : 'facing-sub';
+    const sfHtml = opp.shortfalls.map(sf =>
+      `<div class="sf-row"><span class="vote vote-sm">${sf.votes}</span><div><span class="sf-text">${sf.text}</span><span class="sf-theme">${sf.theme}</span></div></div>`
+    ).join('');
+    const solHtml = opp.solutions.map(s =>
+      `<div class="sol-row"><span class="sol-diamond">\u25C6</span><span>${s}</span></div>`
+    ).join('');
+
+    return `<div class="opp-card" data-id="${opp.id}" onclick="toggle('${opp.id}')">
+      <div class="card-header">
+        <div class="card-top">
+          <div class="card-top-left"><span class="vote vote-md">${opp.votes}</span><span class="facing ${facingCls}">${opp.facing}</span></div>
+          <span class="card-label">${opp.label}</span>
+        </div>
+        <div class="card-title">${opp.title}</div>
+      </div>
+      <div class="card-expand">
+        <div class="card-expand-inner">
+          <div class="problem-block">
+            <div class="section-label section-label-gold">Problem Statement</div>
+            <div class="problem-text">${opp.problem}</div>
+          </div>
+          <div class="mb-14">
+            <div class="section-label section-label-dim">Shortfalls</div>
+            ${sfHtml}
+          </div>
+          <div>
+            <div class="section-label section-label-dim">Candidate Solutions</div>
+            ${solHtml}
+          </div>
+        </div>
+      </div>
+      <div class="expand-bar"><span class="expand-text"><span class="arrow">\u25BC</span> Expand</span></div>
+    </div>`;
+  }).join('');
+
+  // Update expand indicators
+  document.querySelectorAll('.opp-card').forEach(c => {
+    const arrow = c.querySelector('.arrow');
+    const txt = c.querySelector('.expand-text');
+    if (c.classList.contains('open')) {
+      arrow.textContent = '\u25B2';
+      txt.lastChild.textContent = ' Collapse';
+    }
+  });
+}
+
+function drawConnectors() {
+  const svg = document.getElementById('connectors');
+  const container = document.getElementById('container');
+  const outcome = document.getElementById('outcome-node');
+  if (!container || !outcome) return;
+
+  const cRect = container.getBoundingClientRect();
+  const oRect = outcome.getBoundingClientRect();
+  const x1 = oRect.left + oRect.width / 2 - cRect.left;
+  const y1 = oRect.bottom - cRect.top;
+
+  let paths = '';
+  document.querySelectorAll('.opp-card').forEach(card => {
+    const r = card.getBoundingClientRect();
+    const x2 = r.left + r.width / 2 - cRect.left;
+    const y2 = r.top - cRect.top;
+    const midY = (y1 + y2) / 2;
+    paths += `<path d="M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}" fill="none" stroke="rgba(224,192,151,0.19)" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+  });
+  svg.innerHTML = paths;
+}
+
+renderCards();
+drawConnectors();
+window.addEventListener('resize', drawConnectors);
+</script>
+</body>
+</html>
