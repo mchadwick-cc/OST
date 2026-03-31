@@ -71,8 +71,43 @@
   /* ========= TIER LABELS ========= */
   .tier-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-faint); margin-bottom: 8px; padding-left: 2px; }
 
-  /* ========= TIER 1: OPPORTUNITY CARDS ========= */
-  .opp-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  /* ========= TIER 1: OPPORTUNITY ROWS ========= */
+  .opp-row { display: grid; gap: 10px; }
+  .opp-row-main { grid-template-columns: repeat(3, 1fr); }
+  .opp-row-nicetohave { grid-template-columns: repeat(3, 1fr); }
+  .opp-row-removed { grid-template-columns: repeat(2, 1fr); }
+
+  /* ========= BAND DIVIDERS ========= */
+  .band-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 22px 0 10px;
+  }
+  .band-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .band-divider-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.12em; white-space: nowrap;
+    padding: 3px 10px; border-radius: 3px;
+  }
+  .band-label-nicetohave { color: #7a5c00; background: #fff8e1; border: 1px solid #f0d060; }
+  .band-label-removed { color: var(--text-dim); background: var(--surface-alt); border: 1px solid var(--border); }
+
+  /* ========= REMOVED CARD STATE ========= */
+  .opp-card.opp-removed {
+    opacity: 0.42; border-style: dashed;
+  }
+  .opp-card.opp-removed:hover { opacity: 0.58; }
+  .opp-card.opp-removed.open { opacity: 0.58; }
+  .removed-note {
+    font-size: 10px; color: var(--text-dim); font-style: italic;
+    padding: 8px 10px; background: var(--surface-alt);
+    border-radius: 6px; border: 1px dashed var(--border); line-height: 1.5;
+  }
+
+  @media (max-width: 960px) {
+    .opp-row-main, .opp-row-nicetohave, .opp-row-removed {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+  }
 
   .opp-col { display: flex; flex-direction: column; }
 
@@ -96,6 +131,7 @@
   .facing { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
   .facing-sub { background: var(--subscriber-bg); color: var(--subscriber-text); }
   .facing-admin { background: var(--admin-bg); color: var(--admin-text); }
+  .facing-prospect { background: #fde8e6; color: #8b2a20; }
 
   /* Expandable problem/shortfalls */
   .card-expand { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s ease; }
@@ -154,6 +190,13 @@
     transition: border-color 0.2s;
   }
   .sol-card:hover { border-color: var(--cc-green-bright); }
+  .sol-card-tags { display: flex; gap: 4px; margin-bottom: 5px; flex-wrap: wrap; }
+  .sol-tag {
+    font-size: 7.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; padding: 1px 5px; border-radius: 3px;
+  }
+  .sol-tag-config { background: #fff3cd; color: #7a5c00; border: 1px solid #f0d060; }
+  .sol-tag-dev { background: #e8eeff; color: #1a2f8a; border: 1px solid #c0caee; }
   .sol-marker {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--cc-green-bright); margin-top: 4px; flex-shrink: 0;
@@ -202,7 +245,7 @@
   <!-- TIER 0: Outcome -->
   <div class="outcome" id="outcome-node">
     <div class="outcome-label">Desired Outcome</div>
-    <div class="outcome-text">Develop a demonstration site that wows prospects with a clear narrative of business benefits wrapped in a modern user interface</div>
+    <div class="outcome-text">Develop a demonstration that wows prospects with a clear narrative of business benefits wrapped in a modern user interface</div>
   </div>
 
   <!-- Connectors: Outcome → Opportunities -->
@@ -210,96 +253,198 @@
     <svg id="svg-tier1"></svg>
   </div>
 
-  <!-- TIER 1: Opportunities -->
-  <div class="tier-label">Opportunities</div>
-  <div class="opp-row" id="opp-row"></div>
+  <!-- TIER 1: Opportunities — Band 1 -->
+  <div class="tier-label">Opportunities — This Quarter</div>
+  <div class="opp-row opp-row-main" id="opp-row-main"></div>
 
-  <!-- TIER 2: Solutions (rendered per-column beneath each opp) -->
-  <!-- Solutions connectors + cards are injected inside each .opp-col -->
+  <!-- Band 2: Nice to have -->
+  <div class="band-divider">
+    <div class="band-divider-line"></div>
+    <div class="band-divider-label band-label-nicetohave">⚡ Nice to have — quick wins if time allows</div>
+    <div class="band-divider-line"></div>
+  </div>
+  <div class="opp-row opp-row-nicetohave" id="opp-row-nicetohave"></div>
+
+  <!-- Band 3: Removed from scope -->
+  <div class="band-divider">
+    <div class="band-divider-line"></div>
+    <div class="band-divider-label band-label-removed">Removed from scope this quarter</div>
+    <div class="band-divider-line"></div>
+  </div>
+  <div class="opp-row opp-row-removed" id="opp-row-removed"></div>
+
+  <!-- TIER 2: Solutions injected per column by JS -->
 
   <div class="legend">
     <div class="legend-item"><span class="legend-bar"></span> Relative impact (commercial team assessment)</div>
-    <div class="legend-item"><span class="facing facing-sub">Subscriber</span><span class="facing facing-admin">Admin</span> Who it impacts</div>
-    <div class="legend-item"><span class="legend-dot"></span> Solutions (TBC — pending ideation workshop)</div>
+    <div class="legend-item"><span class="facing facing-sub">Subscriber</span> <span class="facing facing-admin">Admin</span> <span class="facing facing-prospect">Prospect</span> &nbsp;Who it impacts</div>
+    <div class="legend-item"><span class="legend-dot"></span> Solutions from PRD / pending discovery</div>
+    <div class="legend-item"><span class="sol-tag sol-tag-config">Configuration</span> No dev required — admin or content setup</div>
+    <div class="legend-item"><span class="sol-tag sol-tag-dev">Development</span> Requires engineering effort</div>
   </div>
-  <div class="source">Source: Commercial team demo pain points &amp; shortfalls assessment &middot; 5 opportunity areas</div>
+  <div class="source">Source: Commercial team demo pain points &amp; shortfalls assessment &middot; Direction-setting meeting 30 March 2026 &middot; 4 active opportunities</div>
 </div>
 
 <script>
-const DATA = [
+// ---- DATA ----
+
+const DATA_MAIN = [
   {
     id:"opp1", facing:"Subscriber", impact:6,
     title:"Subscriber experience looks inconsistent & dated",
     problem:"When we demo the subscriber journey, prospects encounter jarring visual transitions between new and old UI. The search page doesn\u2019t match the Active theme, and other areas of the platform visibly differ in design language. This undermines our premium positioning and weakens the SaaS-over-build-your-own argument \u2014 the experience looks stitched together rather than purposefully designed.",
     shortfalls:[
-      {text:"Search page not in Active theme / jarring",theme:"Content Discoverability"},
-      {text:"Old/new design differences",theme:"SaaS Over Build Your Own"}
+      {text:"Search page not in Active theme / jarring", theme:"Content Discoverability"},
+      {text:"Old/new design differences", theme:"SaaS Over Build Your Own"}
     ],
     solutions:[
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop"
+      {type:"dev", text:"AIM-ified search page", detail:"Rebuild the search and browse experience in the Active (AIM) theme. Start with a clean list of results — no preview pane, no clipping tools, no advanced filters. Just matching content displayed consistently with the rest of the platform. Layer functionality back in once the visual foundation is solid."},
+      {type:"dev", text:"AIM-ified briefings", detail:"Build a new reading view for short-form content (briefings) in the Active theme — full-width, article-style layout with larger text and full-width images. Mobile-responsive from day one. Long-form interactive reports (DocuViewer+) are out of scope this quarter. Feasibility check with Ben required before committing."},
+      {type:"dev", text:"Restyle fallback", detail:"If briefings can\u2019t be cleanly separated from the full interactive report system, apply a lighter-touch restyle to existing briefings \u2014 updating colours, typography, and spacing to bring them closer to AIM aesthetics without a full rebuild."}
     ]
   },
   {
     id:"opp2", facing:"Subscriber", impact:5,
     title:"Data isn\u2019t integrated into the subscriber journey",
-    problem:"Power BI dashboards and data products sit in isolation \u2014 they don\u2019t appear in search results, aren\u2019t surfaced through MyCatalyst, and aren\u2019t part of the content discovery flow. Even where data visualisations are present, the experience feels disconnected \u2014 iframe presentation, loading delays, and bolted-on landing pages mean data doesn\u2019t feel like a native part of the platform. Meanwhile, prospects are showing us how their subscribers expect to browse data through filter-and-select interfaces (choose dimensions, apply filters, see relevant results), not just search. We lack a first-class \u2018data path\u2019 alongside our content path.",
+    problem:"Power BI dashboards and data products sit in isolation \u2014 they don\u2019t appear in search results, aren\u2019t surfaced through MyCatalyst, and aren\u2019t part of the content discovery flow. Even where data visualisations are present, the experience feels disconnected \u2014 iframe presentation, loading delays, and bolted-on landing pages mean data doesn\u2019t feel like a native part of the platform.",
     shortfalls:[
-      {text:"Power BI not integrated into search and MyCatalyst",theme:"Data Delivery & Discovery"},
-      {text:"How we serve data \u2018menu / selector\u2019 UI",theme:"Download Delivery Undermines Premium Positioning"}
+      {text:"Power BI not integrated into search and MyCatalyst", theme:"Data Delivery & Discovery"},
+      {text:"How we serve data \u2018menu / selector\u2019 UI", theme:"Download Delivery Undermines Premium Positioning"}
     ],
     solutions:[
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop"
+      {type:"dev", text:"Unified product landing page", detail:"Every product \u2014 PDF, briefing, or Power BI dashboard \u2014 opens through the same landing page template. Same \u2018Start reading\u2019 button, same metadata layout (title, description, thumbnail), same visual entry point. The subscriber doesn\u2019t notice a difference between content types until they\u2019re inside the viewer."},
+      {type:"dev", text:"Power BI natively embedded in AIM", detail:"Rather than dropping Power BI into a bare iframe, embed it inside an AIM-styled wrapper \u2014 the same chrome, header, and navigation that surrounds DocuViewer content. Power BI reports feel like a native part of the platform rather than a third-party tool bolted on. No separate launch page, no mismatched UI."},
+      {type:"config", text:"Power BI metadata & content fixes", detail:"Many Power BI products are missing titles, descriptions, and thumbnails in the CMS \u2014 meaning they appear as blank cards in search and browse. This is a configuration task, not development: update product metadata in the admin so Power BI content surfaces properly alongside other content types."}
     ]
   },
+  {
+    id:"opp6", facing:"Prospect", impact:6,
+    title:"Prospects can\u2019t picture themselves in the platform",
+    problem:"When prospects see a demo, they\u2019re looking at someone else\u2019s content in someone else\u2019s brand. The platform could be perfect for them \u2014 but they can\u2019t see it. The imagination gap between \u2018what they\u2019re shown\u2019 and \u2018what it would look like for us\u2019 is a conversion barrier. This has two layers: brand (logo, colours, typography) and content (taxonomy, subject areas, example reports). The Transport Intelligence win \u2014 where a customised Playground demo was the deciding factor \u2014 shows what\u2019s possible when this gap is closed. Today, closing it takes too long or isn\u2019t attempted. The Active theme changes that calculus.",
+    shortfalls:[
+      {text:"Demo always shown in CC house brand, not prospect\u2019s", theme:"SaaS Over Build Your Own"},
+      {text:"Taxonomy and content don\u2019t reflect the prospect\u2019s world", theme:"SaaS Over Build Your Own"},
+      {text:"No quick way to show how different client sites can look from one another", theme:"SaaS Flexibility"}
+    ],
+    solutions:[
+      {type:"config", text:"Prospect-branded demo sites", detail:"Using the Active theme\u2019s configuration options, set up a demo site in the prospect\u2019s brand before the call \u2014 their logo, their primary colour, and a top-level taxonomy that mirrors their subject areas. Target: an Account Manager can complete this in under an hour with no developer involvement. Evidence: the Transport Intelligence win came directly from a customised Playground demo."},
+      {type:"config", text:"2\u20133 visually distinct showcase sites", detail:"Rather than showing every prospect the same layout in different colours, build 2\u20133 pre-configured demo sites that look genuinely different from one another \u2014 different design styles, different content structures, different use cases. When a prospect asks \u2018can it look like X?\u2019, we can show them rather than tell them."},
+      {type:"config", text:"AI-assisted or admin API site setup", detail:"Explore whether the admin API or AI tooling (e.g. prompting the platform\u2019s own APIs) can automate parts of the site setup process \u2014 pre-populating taxonomy, applying brand settings, loading sample content. Reduces the time-to-demo further and removes the dependency on any one person knowing the configuration steps."}
+    ]
+  }
+];
+
+const DATA_NICETOHAVE = [
   {
     id:"opp3", facing:"Subscriber", impact:4,
     title:"AI & personal experience feel bolted on, not embedded",
-    problem:"MyCatalyst AI only exists as a standalone chat experience \u2014 it doesn\u2019t enhance search results, summarise reports, or surface anywhere else in the subscriber journey. The personal area where subscribers manage saved content, alerts, and preferences feels similarly disconnected: underpowered, slow, and not delivering the kind of intelligent, personalised experience prospects expect. Together, these mean the two features that should make the platform feel smart and tailored to each subscriber \u2014 AI and personalisation \u2014 both come across as afterthoughts rather than core to the experience.",
+    problem:"MyCatalyst AI only exists as a standalone chat experience \u2014 it doesn\u2019t enhance search results, summarise reports, or surface anywhere else in the subscriber journey. The personal area where subscribers manage saved content, alerts, and preferences feels similarly disconnected: underpowered, slow, and not delivering the kind of intelligent, personalised experience prospects expect. Together, these mean the two features that should make the platform feel smart and tailored \u2014 AI and personalisation \u2014 both come across as afterthoughts rather than core to the experience.",
     shortfalls:[
-      {text:"AI chat feels separate",theme:"Content Discoverability"},
-      {text:"AI chat is slow",theme:"Content Discoverability"},
-      {text:"MyCatalyst could have more features / be quicker",theme:"Content Discoverability"}
+      {text:"AI chat feels separate", theme:"Content Discoverability"},
+      {text:"AI chat is slow", theme:"Content Discoverability"},
+      {text:"MyCatalyst could have more features / be quicker", theme:"Content Discoverability"}
     ],
     solutions:[
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop"
+      {type:"dev", text:"Deferred this quarter", detail:"AI integration is explicitly out of scope for Q3. The shallow-and-wide approach prioritises visual consistency first. These ideas remain strong backlog candidates once the core demo flow is AIM-ified."},
+      {type:"dev", text:"Potential quick win: \u2018Ask MyCatalyst\u2019 button", detail:"A lightweight contextual AI entry point on product pages \u2014 a small button that opens MyCatalyst pre-loaded with the current report as context. No new AI capability required; just a smarter surface point for the existing MyCatalyst chat. Subject to feasibility check with Ben."},
+      {type:"dev", text:"Copilot sidebar, AI in search, MyCatalyst rebuild", detail:"Longer-horizon ideas from the ideation workshop: a Copilot-style chat panel contextualised to the page the subscriber is viewing; AI-surfaced results within search; and a potential rebuild of MyCatalyst using the MCP/AIMy approach rather than the current RAG system. All require dedicated discovery before committing to scope."}
     ]
-  },
+  }
+];
+
+const DATA_REMOVED = [
   {
     id:"opp4", facing:"Admin", impact:3,
     title:"Publishing workflow doesn\u2019t impress",
-    problem:"When we demo the admin publishing process \u2014 upload, workflow, approvals, statuses \u2014 it looks dated and lacks any AI enhancement. More broadly, legacy admin screens that haven\u2019t been updated to the current design language are visible throughout the backend experience. For prospects evaluating SaaS vs building their own, the admin experience matters. A functional-but-uninspiring admin UI makes it harder to convey the efficiency and modernity gains of choosing Content Catalyst.",
+    problem:"When we demo the admin publishing process \u2014 upload, workflow, approvals, statuses \u2014 it looks dated and lacks any AI enhancement. Legacy admin screens that haven\u2019t been updated to the current design language are visible throughout. A functional-but-uninspiring admin UI makes it harder to convey the efficiency and modernity gains of choosing Content Catalyst.",
     shortfalls:[
-      {text:"Old look & no AI / no wow to it",theme:"Internal Publishing Workflow"}
-    ],
-    solutions:[
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop"
+      {text:"Old look & no AI / no wow to it", theme:"Internal Publishing Workflow"}
     ]
   },
   {
     id:"opp5", facing:"Subscriber", impact:2,
     title:"Subscription value isn\u2019t visible to subscribers",
-    problem:"During demos, it\u2019s not clear to prospects how a subscriber would understand what their tier includes or what additional content is available to them. Without visible tiering and upgrade paths, the upsell and renewal story we want to tell (padlocked content, Showcase, category cards) doesn\u2019t land.",
+    problem:"During demos, it\u2019s not clear to prospects how a subscriber would understand what their tier includes or what additional content is available to them. Without visible tiering and upgrade paths, the upsell and renewal story (padlocked content, Showcase, category cards) doesn\u2019t land.",
     shortfalls:[
-      {text:"Subscription / access not clearly indicated",theme:"Grow Revenue"}
-    ],
-    solutions:[
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop",
-      "TBC \u2014 ideation workshop"
+      {text:"Subscription / access not clearly indicated", theme:"Grow Revenue"}
     ]
   }
 ];
 
-const maxImpact = Math.max(...DATA.map(d => d.impact));
+const ALL_DATA = [...DATA_MAIN, ...DATA_NICETOHAVE, ...DATA_REMOVED];
+const maxImpact = Math.max(...ALL_DATA.map(d => d.impact));
 let openOpps = {};
+
+// ---- HELPERS ----
+
+function facingClass(f) {
+  if (f === 'Admin') return 'facing-admin';
+  if (f === 'Prospect') return 'facing-prospect';
+  return 'facing-sub';
+}
+
+function buildCol(opp, isRemoved) {
+  const fCls = facingClass(opp.facing);
+  const pct = Math.round((opp.impact / maxImpact) * 100);
+  const removedCls = isRemoved ? ' opp-removed' : '';
+
+  const sfHtml = opp.shortfalls.map(sf =>
+    `<div class="sf-row"><span class="sf-dot"></span><div><span class="sf-text">${sf.text}</span><span class="sf-theme">${sf.theme}</span></div></div>`
+  ).join('');
+
+  let solHtml;
+  if (isRemoved) {
+    solHtml = `<div class="removed-note">Removed from scope \u2014 PRD \u00a74. Retained as a backlog item for future quarters.</div>`;
+  } else {
+    solHtml = opp.solutions.map((s, i) => {
+      const tagHtml = `<div class="sol-card-tags"><span class="sol-tag ${s.type === 'config' ? 'sol-tag-config' : 'sol-tag-dev'}">${s.type === 'config' ? 'Configuration' : 'Development'}</span></div>`;
+      return `<div class="sol-card" data-sol="${opp.id}-sol${i}"><div style="flex:1"><span class="sol-marker" style="float:left;margin-top:4px;margin-right:6px"></span>${tagHtml}<strong style="font-size:10.5px;color:var(--cc-navy);line-height:1.3;display:block;margin-bottom:3px">${s.text}</strong><span style="font-size:10px;color:var(--text-mid);line-height:1.5">${s.detail}</span></div></div>`;
+    }).join('');
+  }
+
+  return `<div class="opp-col" data-id="${opp.id}">
+    <div class="opp-card${removedCls}" data-id="${opp.id}" onclick="toggleOpp('${opp.id}')">
+      <div class="card-header">
+        <div class="card-top"><span class="facing ${fCls}">${opp.facing}</span></div>
+        <div class="card-title">${opp.title}</div>
+        <div class="impact-row">
+          <span class="impact-label">Impact</span>
+          <div class="impact-track"><div class="impact-fill" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <div class="card-expand">
+        <div class="card-expand-inner">
+          <div class="problem-block">
+            <div class="section-label section-label-navy">Problem Statement</div>
+            <div class="problem-text">${opp.problem}</div>
+          </div>
+          <div style="margin-bottom:4px">
+            <div class="section-label section-label-dim">Shortfalls</div>
+            ${sfHtml}
+          </div>
+        </div>
+      </div>
+      <div class="toggle-btn">
+        <span class="toggle-text"><span class="opp-arrow">&#9660;</span><span class="opp-toggle-label"> Expand</span></span>
+      </div>
+    </div>
+    <div class="solutions-zone" data-parent="${opp.id}">
+      <div class="solutions-connector-zone" data-connzone="${opp.id}">
+        <svg data-connsvg="${opp.id}"></svg>
+      </div>
+      ${isRemoved ? '' : '<div class="solutions-label">Solutions</div>'}
+      <div class="solutions-grid" data-solgrid="${opp.id}">
+        ${solHtml}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderGroup(data, containerId, isRemoved) {
+  document.getElementById(containerId).innerHTML = data.map(opp => buildCol(opp, isRemoved)).join('');
+}
+
+// ---- INTERACTIONS ----
 
 function toggleOpp(id) {
   openOpps[id] = !openOpps[id];
@@ -308,85 +453,26 @@ function toggleOpp(id) {
   const solZone = col.querySelector('.solutions-zone');
   const arrow = col.querySelector('.opp-arrow');
   const label = col.querySelector('.opp-toggle-label');
-
   const isOpen = openOpps[id];
   card.classList.toggle('open', isOpen);
   solZone.classList.toggle('open', isOpen);
   if (arrow) arrow.textContent = isOpen ? '\u25B2' : '\u25BC';
   if (label) label.textContent = isOpen ? ' Collapse' : ' Expand';
-
-  // Redraw solution connectors after animation
   setTimeout(() => drawSolutionConnectors(id), 460);
 }
 
-function renderCards() {
-  const row = document.getElementById('opp-row');
-  row.innerHTML = DATA.map(opp => {
-    const facingCls = opp.facing === 'Admin' ? 'facing-admin' : 'facing-sub';
-    const pct = Math.round((opp.impact / maxImpact) * 100);
-
-    const sfHtml = opp.shortfalls.map(sf =>
-      `<div class="sf-row"><span class="sf-dot"></span><div><span class="sf-text">${sf.text}</span><span class="sf-theme">${sf.theme}</span></div></div>`
-    ).join('');
-
-    const solCardsHtml = opp.solutions.map((s, i) =>
-      `<div class="sol-card" data-sol="${opp.id}-sol${i}"><span class="sol-marker"></span><span>${s}</span></div>`
-    ).join('');
-
-    return `<div class="opp-col" data-id="${opp.id}">
-      <!-- Opportunity card -->
-      <div class="opp-card" data-id="${opp.id}" onclick="toggleOpp('${opp.id}')">
-        <div class="card-header">
-          <div class="card-top"><span class="facing ${facingCls}">${opp.facing}</span></div>
-          <div class="card-title">${opp.title}</div>
-          <div class="impact-row">
-            <span class="impact-label">Impact</span>
-            <div class="impact-track"><div class="impact-fill" style="width:${pct}%"></div></div>
-          </div>
-        </div>
-        <div class="card-expand">
-          <div class="card-expand-inner">
-            <div class="problem-block">
-              <div class="section-label section-label-navy">Problem Statement</div>
-              <div class="problem-text">${opp.problem}</div>
-            </div>
-            <div style="margin-bottom:4px">
-              <div class="section-label section-label-dim">Shortfalls</div>
-              ${sfHtml}
-            </div>
-          </div>
-        </div>
-        <div class="toggle-btn">
-          <span class="toggle-text"><span class="opp-arrow">&#9660;</span><span class="opp-toggle-label"> Expand</span></span>
-        </div>
-      </div>
-
-      <!-- Solution cards zone (branches below) -->
-      <div class="solutions-zone" data-parent="${opp.id}">
-        <div class="solutions-connector-zone" data-connzone="${opp.id}">
-          <svg data-connsvg="${opp.id}"></svg>
-        </div>
-        <div class="solutions-label">Solutions — To Be Confirmed</div>
-        <div class="solutions-grid" data-solgrid="${opp.id}">
-          ${solCardsHtml}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
+// ---- CONNECTORS ----
 
 function drawTier1Connectors() {
   const svg = document.getElementById('svg-tier1');
   const zone = document.getElementById('conn-zone-1');
   const outcome = document.getElementById('outcome-node');
   if (!outcome || !zone) return;
-
   const zRect = zone.getBoundingClientRect();
   const oRect = outcome.getBoundingClientRect();
   const x1 = oRect.left + oRect.width / 2 - zRect.left;
-
   let paths = '';
-  document.querySelectorAll('.opp-card').forEach(card => {
+  document.querySelectorAll('#opp-row-main .opp-card').forEach(card => {
     const r = card.getBoundingClientRect();
     const x2 = r.left + r.width / 2 - zRect.left;
     paths += `<path d="M ${x1} 0 C ${x1} ${zRect.height*0.65}, ${x2} ${zRect.height*0.35}, ${x2} ${zRect.height}" fill="none" stroke="#031183" stroke-width="1" stroke-opacity="0.18"/>`;
@@ -400,29 +486,31 @@ function drawSolutionConnectors(oppId) {
   const card = document.querySelector(`.opp-card[data-id="${oppId}"]`);
   const grid = document.querySelector(`[data-solgrid="${oppId}"]`);
   if (!svg || !zone || !card || !grid) return;
-
   const zRect = zone.getBoundingClientRect();
   const cRect = card.getBoundingClientRect();
   const x1 = cRect.left + cRect.width / 2 - zRect.left;
-
   let paths = '';
   grid.querySelectorAll('.sol-card').forEach(sol => {
     const sRect = sol.getBoundingClientRect();
     const x2 = sRect.left + sRect.width / 2 - zRect.left;
     const h = zRect.height;
-    paths += `<path d="M ${x1} 0 C ${x1} ${h*0.6}, ${x2} ${h*0.4}, ${x2} ${h}" fill="none" stroke="${'#69E38F'}" stroke-width="1" stroke-opacity="0.5"/>`;
+    paths += `<path d="M ${x1} 0 C ${x1} ${h*0.6}, ${x2} ${h*0.4}, ${x2} ${h}" fill="none" stroke="#69E38F" stroke-width="1" stroke-opacity="0.5"/>`;
   });
   svg.innerHTML = paths;
 }
 
 function drawAllConnectors() {
   drawTier1Connectors();
-  DATA.forEach(opp => {
+  ALL_DATA.forEach(opp => {
     if (openOpps[opp.id]) drawSolutionConnectors(opp.id);
   });
 }
 
-renderCards();
+// ---- INIT ----
+
+renderGroup(DATA_MAIN, 'opp-row-main', false);
+renderGroup(DATA_NICETOHAVE, 'opp-row-nicetohave', false);
+renderGroup(DATA_REMOVED, 'opp-row-removed', true);
 requestAnimationFrame(drawAllConnectors);
 window.addEventListener('resize', drawAllConnectors);
 </script>
